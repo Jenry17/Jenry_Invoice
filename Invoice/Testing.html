@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta class="viewport" content="wclassth=device-wclassth, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Sample_Invoice</title>
+
+    <style>
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 25px;
+            background-color: rgb(238, 238, 237);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 20px 20px;
+        }
+
+        .input-group-text {
+            padding-bottom: 5px;
+        }
+    </style>
+
+<script>
+    $(document).ready(function () {
+        // Calculate total on keyup event for price inputs
+        $(document).on('keyup', '.quantity, .price, .adjustment', function () {
+            calculateTotal();
+        });
+
+        function calculateTotal() {
+            var total = 0;
+
+            // Loop through each row in the table
+            $('.invoiceTable tbody tr').each(function () {
+                var quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                var price = parseFloat($(this).find('.price').val()) || 0;
+
+                // Calculate subtotal for each row
+                var subtotal = quantity * price;
+                $(this).find('.amountP').val(subtotal.toFixed(2));
+
+                // Add subtotal to the total
+                total += subtotal;
+            });
+
+            // Update the total in the HTML
+            var adjustment = parseFloat($('.adjustment').val()) || 0;
+            var amountT = total + adjustment;
+            $('.amountT').val(amountT.toFixed(2));
+        }
+
+        $('#btnAdd').on('click', function () {
+            var newRow = $('#trow').clone().removeAttr('id').removeClass('d-none');
+            newRow.find('input').val('');
+            $('.invoiceTable tbody').append(newRow);
+            calculateTotal();
+        });
+
+        $(document).on('click', '.btnDel', function () {
+            var rowCount = $('.invoiceTable tbody tr').length;
+
+            if (rowCount > 1) {
+                $(this).closest('tr').remove();
+                calculateTotal();
+            } else {
+                alert('Cannot delete all rows. At least one row is required.');
+            }
+        });
+    });
+</script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2><b>Billing Invoice</b></h2>
+                </div>
+
+                <div class="card body">
+                    <!-- Your other form elements here -->
+
+                    <div class="col-md-12 mt-2">
+                        <table class="invoiceTable table table-bordered table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th scope="col" class="text-end text-center btn-primary">Item Name</th>
+                                    <th scope="col" class="text-end text-center btn-primary">Quantity</th>
+                                    <th scope="col" class="text-end text-center btn-primary">Item Price</th>
+                                    <th scope="col" class="text-end text-center btn-primary">Total Price</th>  
+                                    <th scope="col" class="text-end text-center btn-primary">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="trow" class="d-none">
+                                    <td><input type="text" name="Item1" value="Item1"></td>
+                                    <td><input type="number" class="quantity form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
+                                    <td><input type="number" class="price form-control" name="UnitPrice" value="100" oninput="this.value = this.value.replace(/[^0-9]/g, '-')"></td>
+                                    <td><input type="number" class="amountP form-control" name="Price" disabled></td>
+                                    <td><button type="button" class="btn btn-danger btn-block btnDel">Delete Item</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-success" id="btnAdd">Add Item</button><br><br>
+                        <div class="col-md-4">
+                            <span class="input-group-text">Adjustment:</span>
+                            <input type="number" class="adjustment form-control"><br>
+                            <span class="input-group-text">Total Amount:</span>
+                            <input type="text" class="amountT form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
